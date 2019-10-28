@@ -15,7 +15,7 @@ Similar to [pooltogether.us](https://www.pooltogether.us/), users may risk their
 
 #### See All Supported Products Here
 
-[<button class="card" href="https://calchulus.github.io/limittowinit/compound.html">cTokens</button>](compound.html) [<button class="card">Synthetix Tokens</button>](snx.html) [<button class="card" href="bzx.html">bZx iTokens</button>](bzx.html)
+[<button class="card" href="https://calchulus.github.io/limittowinit/compound.html">cTokens</button>](https://calchulus.github.io/limittowinit/compound.html) [<button class="card">Synthetix Tokens</button>](https://calchulus.github.io/limittowinit/snx.html) [<button class="card" href="bzx.html">bZx iTokens</button>](https://calchulus.github.io/limittowinit/bzx.html)
 
 * * *
 
