@@ -1,0 +1,31 @@
+html {
+    margin: 50px;
+   
+    
+}
+
+.card {
+     background:#a3a3a3;
+    color: white;
+/*    background: none;*/
+    border-radius: 5px;
+/*    border-color: #0090ff;*/
+/*    color:#000;*/
+    border-width: 2px;
+    padding: 5px;
+    margin: 5px;
+    max-width: 50%;
+    text-align: center;
+}
+
+
+button {
+    background:linear-gradient(141deg, #9fb8ad 0%, #1fc8db 51%, #2cb5e8 75%)!important;
+/*    border-width: 10px;*/
+    border-radius: 4px;
+    color:white;
+}
+
+.force-select-all {
+  user-select: all;
+}

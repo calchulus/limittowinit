@@ -1,0 +1,404 @@
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<link href="./style.css" rel="stylesheet">
+
+
+<link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<script>
+
+    window.addEventListener('load', async () => {
+  // Modern dapp browsers...
+  if (window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      // Request account access if needed
+      await ethereum.enable();
+      // Acccounts now exposed
+      var account = web3.givenProvider.selectedAddress;
+        console.log(account);
+        document.getElementById("address").innerHTML = account;
+          web3.eth.getTransactionCount(account).then(function(result) {
+               document.getElementById("nonce").innerHTML = result;
+          });
+//      web3.eth.sendTransaction({/* ... */});
+    } catch (error) {
+      // User denied account access...
+    }
+  }
+    
+    });
+</script>
+
+
+<html>
+       <h4>Compound Integration</h4>
+    
+    <h5>Welcome <span id="address"></span></h5>
+<label>Select Your cToken</label><br>
+<!--<label>CTokens</label>-->
+<select id="coin" onchange="getrate()">
+<option value="">Select Token</option>  
+    
+<option value="cDAI">cDAI</option>
+<option value="cUSDC">cUSDC</option>
+<option value="cETH">cETH</option>
+<option value="cBAT">cBAT</option>
+<option value="cREP">cREP</option>
+<option value="cZRX">cZRX</option>
+<option value="cWBTC">cWBTC</option>
+<!--
+</select>
+
+<label>Synthetix Tokens</label>
+<select id="coin">
+-->
+
+    
+</select>
+<br>
+
+
+<!--
+    <button>50% More than now</button>
+    <button>100% More than now</button>
+-->
+    <script>
+        function calcdesired() {
+            console.log("H");
+           var sugyield =  (document.getElementById('current_yield').innerHTML* (1 + Number(document.getElementById('additionalinterest').value)/100)).toFixed(4);
+              document.getElementById('sugrate').innerHTML= sugyield;
+              document.getElementById('desiredrate').value= sugyield;
+            
+            
+            console.log(sugyield);
+            
+        }
+        </script>
+  
+<!--<button >Test</button>-->
+
+    <div class="card">
+<!--   <br>-->
+       Selected Token 
+Current DAI/cDAI Rate
+        
+<div>One <span id="base_coin">SYMBOL</span> = <span id="cdairate" onload=getrate()>null</span> <span id="synthasset">SYMBOL</span> </div>
+
+    Current Yield (%)  <span id="current_yield"></span>
+
+ </div>
+    
+    
+      <div class="card">Suggest Expected Increase (%) From Current Yield
+    <input onkeyup="calcdesired()" id="additionalinterest" placeholder="25%" value=25>
+<!--    <button onclick="calcdesired">Add Bonus %</button>-->
+    
+    <span id="sugrate"></span>
+          </div>
+    
+       
+      <div class="card">Calculate Expected Time - Enter Target Portfolio Gain %
+    <input onkeyup="calctime()" id="target" placeholder="3%" value=3>
+<!--    <button onclick="calcdesired">Add Bonus %</button>-->
+    
+    Estimated: <span id="esttime"></span> days
+          
+          
+          <script>
+         function calctime() {
+            var target = document.getElementById("target").value;
+             var curyield = document.getElementById("current_yield").innerHTML;
+             var days = target/curyield*365;
+             document.getElementById("esttime").innerHTML = days;
+             document.getElementById("time").value = days;
+//             time
+         } 
+          </script>
+          </div>
+    
+    
+    <label>Enter Your Desired Earnings Rate In Percent</label>
+<input id="desiredrate" type="number" placeholder="%">
+       
+       
+    <br>
+
+<script>
+    function getrate() {
+var base_url = "https://api.compound.finance/api/v2/ctoken";
+    console.log(base_url);
+fetch(base_url)  
+   .then((resp) => resp.json())
+    .then(function(data) {
+//    var obj = JSON.parse(data);
+    var ctokenlist = data.cToken;
+console.log(ctokenlist);
+    
+    for (i=0; i< ctokenlist.length; i++) {
+        var info_dict = ctokenlist[i];
+        var symbol = info_dict["symbol"]
+        if (symbol == document.getElementById("coin").value) {
+            console.log(1/info_dict["exchange_rate"]["value"]);
+            document.getElementById("cdairate").innerHTML = 1/info_dict["exchange_rate"]["value"];
+            document.getElementById("synthasset").innerHTML = symbol;
+            document.getElementById("base_coin").innerHTML = symbol.substr(1);
+           var lend_rate = info_dict["supply_rate"]["value"]*100;
+//            console.log(lend_rate);
+            document.getElementById("current_yield").innerHTML = lend_rate;
+            document.getElementById("sugrate").innerHTML = lend_rate * 1.25;
+            document.getElementById("desiredrate").value = lend_rate.toFixed(4);
+        }
+//        var cur_borrow = info_dict["borrow_rate"]["value"] 
+//        var cur_lend = info_dict["supply_rate"]["value"] 
+    }
+    
+    // Your code for handling the data you get from the API
+})
+.catch(function() {
+    // This is where you run code if the server returns any errors
+});
+
+    }
+</script>
+
+<label>Target Holding Duration</label>
+<input id="time" placeholder="6" value=6>
+<select id="time_unit" placeholder="months" selected="weeks">
+<!--<option id="days" value="days">Days</option>-->
+<!--<option id="select" value="select">Select Duration</option>-->
+    
+<option id="days" value="days">Days</option>
+<option id="weeks" value="weeks">Weeks</option>
+<option id="months" value="months">Months</option>
+<option id="years" value="years">Years</option>
+    </select>
+<button id="clickme" onclick=convertBlocks()>Click me to Submit!</button>
+<br>
+Expected Period Yield <span id="expected_period_yield">..</span>
+
+<br>
+Set Price 
+    <div>One <span id="base_coin2">SYMBOL</span> =      <span id="setprice">..</span>   <span id="synthasset2">SYMBOL</span> </div>
+    
+    <hr>
+    <h4>Trade Creation Center</h4>
+   <label>Enter Amount of Base Token</label> 
+<input id="basetokenamount" onkeyup="genorder()">
+       <br>
+      Sell For <span id="orderamount"></span> <span id="synthasset3">SYMBOL</span> 
+       
+<script>
+    function convertBlocks() {
+        var blocktime = 14.089628893306825;
+        
+        var time = document.getElementById("time").value;
+        if (document.getElementById("time_unit").value) {
+            var unit = document.getElementById("time_unit").value;
+            if (unit == "days") {
+               var base_length =  24*60*60/blocktime;
+                var year_fraction = 1/365;
+            }
+            else {
+                if (unit == "weeks") {
+var base_length =  7*24*60*60/blocktime;
+                var year_fraction = 1/52;
+                    
+            }
+                else {
+                                    if (unit == "months") {
+var base_length =  30.5*24*60*60/blocktime;
+                var year_fraction = 1/12;
+                                        
+            }
+                    else {
+                   var base_length =  365*24*60*60/blocktime;   
+                        var year_fraction = 1;
+                    }
+                }
+        }
+    }
+       var blocknum = base_length * time ;
+        console.log(blocknum);
+       var apy = document.getElementById("desiredrate").value/100;
+        var apyperblock = apy / 365/24/60/60*blocktime;
+        console.log(apy);
+        
+        console.log(apyperblock);
+        var period_yield = blocknum * apyperblock;
+        document.getElementById("expected_period_yield").innerHTML = period_yield;
+        
+        
+       var newrate = 1/(1/Number(document.getElementById("cdairate").innerHTML) * (1+period_yield));
+        document.getElementById("setprice").innerHTML = newrate;
+        
+         document.getElementById("synthasset2").innerHTML =  document.getElementById("synthasset").innerHTML;
+         document.getElementById("synthasset3").innerHTML =  document.getElementById("synthasset").innerHTML;
+            document.getElementById("base_coin2").innerHTML = document.getElementById("base_coin").innerHTML;;
+    }
+    
+</script>
+
+    <hr>
+<!--    <label>Web3 Code</label><br>-->
+    <p>Copy This Output For Limit Orders</p>
+    <pre><code style="padding: 5px; background: #e3e3e3" class="force-select-all" id="output" onclick=copytext()> </code></pre>
+    
+    <pre><code id="nonce" style="display:none;"></code></pre>
+<!--    <pre><code>event NewLimitOrder(address indexed maker, uint32 orderId, bool isEthToToken, uint128 srcAmount, uint128 dstAmount, False) </code></pre>-->
+    
+    
+    
+    <script>
+    function genorder() {
+        var sym = document.getElementById("synthasset").innerHTML;
+        console.log(sym);
+        var srcAmount = document.getElementById("basetokenamount").value;
+        console.log(srcAmount);
+        
+        var dstAmount = srcAmount * document.getElementById("setprice").innerHTML;
+        console.log(dstAmount);
+        
+        document.getElementById("orderamount").innerHTML = dstAmount;
+        var account = web3.eth.accounts.givenProvider.selectedAddress;
+        var nonce = document.getElementById("nonce").innerHTML;
+        
+     
+        const compound_contracts =
+    {"cBAT": {
+    "mainnet":"0x6c8c6b02e7b2be14d4fa6022dfd6d75921d90e4e"
+    ,"Rinkeby":"0xebf1a11532b93a529b5bc942b4baa98647913002"
+    ,"Kovan":"0xb5e5d0f8c0cba267cd3d7035d6adc8eba7df7cdd"
+   ,"Ropsten":"0x189ca88be39c9c1b8c8dd437f5ff1db1f584b14b"
+  },
+"cDAI": {
+    "mainnet":"0xf5dce57282a584d2746faf1593d3121fcac444dc"
+    ,"Rinkeby":"0x6d7f0754ffeb405d23c51ce938289d4835be3b14"
+    ,"Kovan":"0x0a1e4d0b5c71b955c0a5993023fc48ba6e380496"
+   ,"Ropsten":"0x2b536482a01e620ee111747f8334b395a42a555e"
+  },
+"cETH": {
+    "mainnet":"0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5"
+    ,"Rinkeby":"0xd6801a1dffcd0a410336ef88def4320d6df1883e"
+    ,"Kovan":"0xd83f707f003a1f0b1535028ab356fce2667ab855"
+   ,"Ropsten":"0x42a628e0c5f3767930097b34b08dcf77e78e4f2b"
+  },
+"cREP": {
+    "mainnet":"0x158079ee67fce2f58472a96584a73c7ab9ac95c1"
+    ,"Rinkeby":"0xebe09eb3411d18f4ff8d859e096c533cac5c6b60"
+    ,"Kovan":"0x8a9447df1fb47209d36204e6d56767a33bf20f9f"
+   ,"Ropsten":"0xa3c2c1618214549281e1b15dee9d682c8aa0dc1c"
+  },
+"cUSDC": {
+    "mainnet":"0x39aa39c021dfbae8fac545936693ac917d5e7563"
+    ,"Rinkeby":"0x5b281a6dda0b271e91ae35de655ad301c976edb1"
+    ,"Kovan":"0xdff375162cfe7d77473c1bec4560dede974e138c"
+   ,"Ropsten":"0x43a1363afb28235720fcbdf0c2dab7759091f7e0"
+  },
+"cWBTC": {
+    "mainnet":"0xc11b1268c1a384e55c48c2391d8d480264a3a7f4"
+    ,"Rinkeby":"0x0014f450b8ae7708593f4a46f8fa6e5d50620f96"
+    ,"Kovan":"0x189ca88be39c9c1b8c8dd437f5ff1db1f584b14b"
+   ,"Ropsten":"0x06e728d7907c164649427d2acfd4c81669d453bf"
+  },
+"cZRX": {
+    "mainnet":"0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407"
+    ,"Rinkeby":"0x52201ff1720134bbbbb2f6bc97bf3715490ec19b"
+    ,"Kovan":"0x9636246bf34e688c6652af544418b38eb51d2c43"
+   ,"Ropsten":"0xdff375162cfe7d77473c1bec4560dede974e138c"
+  }};
+        
+        
+         if (web3.givenProvider.networkVersion == 1) {
+          var contract = compound_contracts[sym].mainnet;
+      }
+        
+        
+        else {
+            if (web3.givenProvider.networkVersion == 3) {
+                var contract = compound_contracts[sym].Ropsten;
+        }
+            else {
+            if (web3.givenProvider.networkVersion == 4) {
+                var contract = compound_contracts[sym].Rinkeby;
+        }
+                else {
+            if (web3.givenProvider.networkVersion == 42) {
+                var contract = compound_contracts[sym].Kovan;
+        }
+               else {
+                   console.log("error");
+               }     
+                }
+            }
+        }
+        
+    // here you can use the result of promiseB
+//});
+//          web3.eth.getTransactionCount(address, function(error, txCount) { // your code });
+//    var nonce = txCount; 
+//            console.log(nonce);
+//        });
+        
+        
+//        
+//        
+//   function executeLimitOrder(
+//        address user,
+//        uint256 nonce,
+//        ERC20 srcToken,
+//        uint256 srcQty,
+//        ERC20 destToken,
+//        address payable destAddress,
+//        uint256 minConversionRate,
+//        uint256 feeInPrecision,
+//        uint8 v,
+//        bytes32 r,
+//        bytes32 s
+//    )
+//        
+        
+        document.getElementById('output').innerHTML = [account, nonce, srcAmount, contract, dstAmount, account, 0, 100];
+    
+    }
+    </script>
+
+    
+    <script>
+  function copytext() {
+const copyToClipboard = str => {
+  const el = document.getElementById('output');                              // Set its value to the string that you want copied
+//  el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
+  el.style.position = 'absolute';                 
+  el.style.left = '-9999px';                      // Move outside the screen to make it invisible
+  document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
+  const selected =            
+    document.getSelection().rangeCount > 0        // Check if there is any content selected previously
+      ? document.getSelection().getRangeAt(0)     // Store selection if found
+      : false;                                    // Mark as false to know no selection existed before
+  el.select();                                    // Select the <textarea> content
+  document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+  document.body.removeChild(el);                  // Remove the <textarea> element
+  if (selected) {                                 // If a selection existed before copying
+    document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+    document.getSelection().addRange(selected);   // Restore the original selection
+  }
+};
+//    document.getElementById('output').select();
+//    document.execCommand('copy');
+//    alert('Copied Successfully');
+        
+}</script>
+       
+
+    <a href="index.html">See All Protocols</a>
+    
+    </html>
+

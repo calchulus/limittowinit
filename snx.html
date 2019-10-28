@@ -1,0 +1,180 @@
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<link href="./style.css" rel="stylesheet">
+
+
+<link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+
+
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+<script>
+
+    window.addEventListener('load', async () => {
+  // Modern dapp browsers...
+  if (window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      // Request account access if needed
+      await ethereum.enable();
+      // Acccounts now exposed
+      var account = web3.givenProvider.selectedAddress;
+        console.log(account);
+        document.getElementById("address").innerHTML = account;
+          web3.eth.getTransactionCount(account).then(function(result) {
+               document.getElementById("nonce").innerHTML = result;
+          });
+//      web3.eth.sendTransaction({/* ... */});
+    } catch (error) {
+      // User denied account access...
+    }
+  }
+    
+    });
+</script>
+
+<html>
+<h1>SNX Staking Limit Calcs</h1>
+<br>
+
+     <h5>Welcome <span id="address"></span></h5>
+1 <span id="token">SNX</span> = <span id="kyberprice"></span> DAI <button id="getrate" onclick=getrate()>Get SNX Rate</button>
+<br>
+<span id="contractaddress"></span>
+
+<br>
+<label>Your SNX Amount (Please edit) </label>
+
+<input id="snxamount" value=100 onkeyup=calcsnx()> SNX
+    
+<hr>
+    <h3>Assumptions</h3>
+
+    Minimum Overcollat. Rate to earn Fees
+<input id="reserveratio" value=675 disabled> %
+
+
+<br>
+<label>Staking Earnings</label>
+<input id="stakingyield" value=75 disabled> %
+<br>
+<hr>
+    
+    <div class="card">
+Reward % Per Block: <span id="perblock"></span> <br>
+Reward % Per Week: <span id="perweekpercentage"></span> <br>
+Rewards Per Week: <span id="perweekgrowth"></span> <br>
+
+
+Current Borrowing Power ($): <span id="borrowpower"></span>
+<br>
+Weekly Borrow Power Increase If Staked: <span id="perweekborrow_increase"></span>
+
+</div>
+<!--
+<script>
+function snxyield() {
+
+}
+
+</script>
+-->
+
+<script>
+    
+    function getrate() {
+        console.log("HI");
+var base_url = "https://api.kyber.network/api/tokens/pairs";
+    console.log(base_url);
+fetch(base_url)  
+   .then((resp) => resp.json())
+    .then(function(data) {
+    
+   var snx_dict =  data["ETH_SNX"];
+   var eth_dai_price =  data["ETH_DAI"]["lastPrice"];
+    
+   var contractaddress =  snx_dict["contractAddress"];
+//   var contract =  snx_dict["contractAddress"];
+    var kyberprice = snx_dict["lastPrice"] / eth_dai_price;
+    document.getElementById("kyberprice").innerHTML = kyberprice;
+})
+        
+        
+        
+          }
+</script>
+
+<script>
+function calcsnx() {
+   var snx = document.getElementById("snxamount").value;
+    var snx_value = snx * document.getElementById("kyberprice").innerHTML;
+    var borrow_power = snx_value/document.getElementById("reserveratio").value*100;
+    document.getElementById('borrowpower').innerHTML= borrow_power;
+//    document.getElementById('reserveratio').value = 675;
+    
+    var apy = document.getElementById("stakingyield").value;
+    var blockapy = apy/365/24/60/60 * 14;
+    var weekyield = apy/52;
+//    console.log(blockapy);
+    document.getElementById("perblock").innerHTML = blockapy;
+    document.getElementById("perweekpercentage").innerHTML = weekyield;
+        document.getElementById("perweekgrowth").innerHTML = weekyield * snx;
+
+    document.getElementById("perweekborrow_increase").innerHTML = weekyield * snx /document.getElementById("reserveratio").value*100;
+    
+}
+</script>
+<br>
+<label>Target Raw Rewards APY % (please edit) </label>
+<input id="target_earn" value=5 onkeyup=calcsetprice()>
+<br>
+<label>Estimated SUSD Lend APY %</label>
+
+<input id="susd_lend_rate" value=6 onkeyup=calcsetprice()>
+
+<br>
+
+<br>
+<label>Break-Even Weekly Change Point</label>
+<p>If SNX price is higher than 
+<span id="breakeven" style="color:red"></span>% from current price, we may sell to earn more than our target raw rewards for the week. If SNX is lower than this amount from the previous week, it is advantageous to purchase it this week and stake it moving forward, compared to purchasing the previous week and staking. 
+</p>
+<script>
+    function calcsetprice() {
+        var real_weekly_susd_yield = document.getElementById("susd_lend_rate").value /52 / document.getElementById("reserveratio").value*100;
+        var weeklyyield =  document.getElementById("perweekpercentage").innerHTML;
+       var tar_week_yield = document.getElementById("target_earn").value / 52;
+//        tar_yield/100 - (real_weekly_susd_yield/100 =  (1 + weeklyyield) * delta 
+        
+//        delta * (1 + weeklyyield/100)  = target_yield/100 - real_weekly_susd_yield/1--
+       console.log(( tar_week_yield/100 - real_weekly_susd_yield/100  - weeklyyield/100));
+        document.getElementById("breakeven").innerHTML = ( tar_week_yield/100 - real_weekly_susd_yield/100  - weeklyyield/100)*100
+     }
+</script>
+    
+<p>To set a limit buy order, please click this button</p>
+    <button id="limit" onclick=setLimit()></button>
+    
+    <pre><code id="limitbuy"></code></pre>
+    <script>
+    function setLimit() {
+     var limit_price =    document.getElementById("kyberprice") *
+ (document.getElementById("breakeven") /100 + 1);
+        limit_amount =  limit_price * document.getElementById("snxamount").value;
+        document.getElementById('limitbuy').innerHTML = []
+    }
+    </script>
+
+
+<!--
+    <div>
+    <h4>Future Additions</h4>
+    </div>
+    
+-->
+    <a href="index.html">See All Protocols</a>
+    
+
+</html>

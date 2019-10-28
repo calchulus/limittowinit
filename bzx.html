@@ -1,0 +1,224 @@
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<link href="./style.css" rel="stylesheet">
+
+
+<link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+
+
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<html>
+<h1>bZx Limit Strategies</h1>
+    
+    
+    
+<script>
+
+    window.addEventListener('load', async () => {
+  // Modern dapp browsers...
+  if (window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      // Request account access if needed
+      await ethereum.enable();
+      // Acccounts now exposed
+      var account = web3.givenProvider.selectedAddress;
+        console.log(account);
+        document.getElementById("address").innerHTML = account;
+          web3.eth.getTransactionCount(account).then(function(result) {
+               document.getElementById("nonce").innerHTML = result;
+          });
+//      web3.eth.sendTransaction({/* ... */});
+    } catch (error) {
+      // User denied account access...
+    }
+  }
+    
+    });
+</script>
+    
+    <h5>Welcome <span id="address"></span></h5>
+    
+    
+    
+<button onclick=getrate()>Get iDAI Price</button>
+
+1 <select id="synthtoken">
+<option value=idai>iDAI</option></select> =  <span id="idaiprice"></span> Dai
+<br>
+<br>
+<label>Desired Gain</label>:
+<input id="desiredannualyield" value= 5 onkeyup=calclimitprice()> %
+<br>
+<label>Current Fulcrum Yield</label>
+<input id="current_fulcrum_yield"  disabled value= 6.73> %
+<br>
+<label>Estimated Days Until Desired Gain Reached</label><br>
+<span id="days"></span> days
+
+<span id="nonce" hidden> </span>
+<script>
+function getrate() {
+var base_url = "https://api.coingecko.com/api/v3/coins/bzx-dai-itoken";
+    console.log(base_url);
+fetch(base_url)  
+   .then((resp) => resp.json())
+    .then(function(data) {
+//    var obj = JSON.parse(data);
+    var iDAIprice = data.market_data.current_price.usd;
+//console.log(iDAIprice);
+    document.getElementById("idaiprice").innerHTML = iDAIprice;
+});
+}
+          
+    </script>
+  
+<script>
+    function calclimitprice() {
+        var yield = document.getElementById("desiredannualyield").value / 100;
+       var price =   document.getElementById("idaiprice").innerHTML * (1+yield);
+        document.getElementById("synthasset").innerHTML = document.getElementById("synthtoken").value;
+        document.getElementById("asset").innerHTML = document.getElementById("synthtoken").value.substr(1);
+        document.getElementById("asset2").innerHTML = document.getElementById("synthtoken").value.substr(1);
+        
+        document.getElementById("setprice").innerHTML = price;
+        
+        var days =  document.getElementById("desiredannualyield").value /    document.getElementById("current_fulcrum_yield").value * 365;
+    document.getElementById("days").innerHTML = days;
+    }
+</script>
+
+
+<br>
+<hr>
+<div class="card">
+Set Limit Price 
+    <div>One <span id="synthasset">SYMBOL</span> =      <span id="setprice">..</span>   <span id="asset">SYMBOL</span> </div>
+    </div>
+    <hr>
+    <h4>Trade Creation Center</h4>
+   <label>Enter Amount of Synth Token</label> 
+<input id="syntokenamount" onkeyup="gentrade()">
+       <br>
+      Sell For <span id="orderamount"></span> <span id="asset2">SYMBOL</span> 
+<br>
+<button id="sendtrade" onclick=genorder()>Send Trade</button>
+<button id="sendtrade" onclick=lever()>Close &amp; Lever Interest</button>
+
+<span id="ethprice"></span>
+<br>Amount to Lever = <span id="leveramt"></span> ETH
+<script>
+   async  function lever() {
+      var srcAmount = document.getElementById("syntokenamount").value;
+        console.log(srcAmount);
+        var price = document.getElementById("idaiprice").innerHTML;
+        var costbasis = srcAmount * price;
+        var limitprice = document.getElementById("setprice").innerHTML;
+        var profit = srcAmount *limitprice - costbasis;
+        console.log(leveramt);
+        
+        var base_url = "https://api.kyber.network/api/tokens/pairs";
+    console.log(base_url);
+await fetch(base_url)  
+   .then((resp) => resp.json())
+    .then(function(data) {
+    
+  var eth_dai_price =  data["ETH_DAI"]["lastPrice"];
+        document.getElementById("ethprice").innerHTML = eth_dai_price;
+    });
+        
+        var ethbuy = profit * document.getElementById("ethprice").innerHTML;
+        
+        document.getElementById('leveramt').innerHTML = ethbuy;
+    
+        var account = web3.eth.accounts.givenProvider.selectedAddress;
+        var nonce = document.getElementById("nonce").innerHTML;
+
+        document.getElementById('output2').innerHTML = [account, nonce, profit, "ETH", ethbuy, account, 0, 100];
+    }
+
+</script>
+
+
+<script>
+
+    window.addEventListener('load', async () => {
+  // Modern dapp browsers...
+  if (window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      // Request account access if needed
+      await ethereum.enable();
+      // Acccounts now exposed
+      var account = web3.givenProvider.selectedAddress;
+        console.log(account);
+        document.getElementById("address").innerHTML = account;
+          web3.eth.getTransactionCount(account).then(function(result) {
+               document.getElementById("nonce").innerHTML = result;
+          });
+//      web3.eth.sendTransaction({/* ... */});
+    } catch (error) {
+      // User denied account access...
+    }
+  }
+    
+    });
+</script>
+
+
+<script>
+   function gentrade() {
+       
+        var sym = document.getElementById("synthasset").innerHTML;
+        console.log(sym);
+        var srcAmount = document.getElementById("syntokenamount").value;
+        console.log(srcAmount);
+        
+        var dstAmount = srcAmount * document.getElementById("setprice").innerHTML;
+        console.log(dstAmount);
+        
+        document.getElementById("orderamount").innerHTML = dstAmount;
+        var account = web3.currentProvider.selectedAddress;
+        var nonce = document.getElementById("nonce").innerHTML ;
+       
+       console.log([account,nonce,srcAmount, sym, dstAmount, 0, 100]);
+   }
+  </script>      
+    
+    <hr>
+<!--    <label>Web3 Code</label><br>-->
+    <p>Copy This Output For Limit Orders</p>
+    <pre><code style="background:#e3e3e3; padding: 5px;" class="force-select-all" id="output" onclick=copytext()> </code></pre>
+<p>Copy This Second Output for a Levered Order After Limit Sell Completes</p>
+    <pre><code style="background:#e3e3e3; padding: 5px;" class="force-select-all" id="output2" onclick=copytext()> </code></pre>
+    
+
+
+ <script>
+    function genorder() {
+        var sym = document.getElementById("synthasset").innerHTML;
+//        if (sym = "idai") {
+//            var contract = 
+//        }
+        console.log(sym);
+        var srcAmount = document.getElementById("syntokenamount").value;
+        console.log(srcAmount);
+        
+        var dstAmount = srcAmount * document.getElementById("setprice").innerHTML;
+        console.log(dstAmount);
+        
+        document.getElementById("orderamount").innerHTML = dstAmount;
+        var account = web3.eth.accounts.givenProvider.selectedAddress;
+        var nonce = document.getElementById("nonce").innerHTML;
+
+        document.getElementById('output').innerHTML = [account, nonce, srcAmount, sym, dstAmount, account, 0, 100];
+    
+    }
+    </script>
+    <pre><code id="nonce" style="display:none;"></code></pre>
+
+
+    <a href="index.html">See All Protocols</a>
+
+</html>
