@@ -11,11 +11,11 @@ This also works for holding certain staking-supported coins, which offer rewards
 
 We offer a tool to spit out the exact parameters needed to construct a Kyber Limit Order to execute the desired interest bearing strategies, and introduce the potential to automatically take interest and lever up on it, in the future using Fulcrum bZx tokens or buying cETH & levering on Compound.
 
-Similar to [pooltogether.us/](https://www.pooltogether.us/), users may risk their interest instead of their principal with just one click. This feature is now available on the [Limit To Win It bZx Page](bzx.html).
+Similar to [pooltogether.us](https://www.pooltogether.us/), users may risk their interest instead of their principal with just one click. This feature is now available on the [Limit To Win It bZx Page](https://calchulus.github.io/limittowinit/bzx.html).
 
 #### See All Supported Products Here
 
-[<button class="card" href="compound.html">cTokens</button>](compound.html) [<button class="card">Synthetix Tokens</button>](snx.html) [<button class="card" href="bzx.html">bZx iTokens</button>](bzx.html)
+[<button class="card" href="https://calchulus.github.io/limittowinit/compound.html">cTokens</button>](compound.html) [<button class="card">Synthetix Tokens</button>](snx.html) [<button class="card" href="bzx.html">bZx iTokens</button>](bzx.html)
 
 * * *
 
